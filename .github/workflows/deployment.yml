@@ -45,3 +45,18 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-west-2
+
+  notify:
+    name: Notify
+    runs-on: ubuntu-20.04
+    needs: [deploy]
+    if: ${{ always() }}
+    steps:
+      - name: Post to a Slack channel
+        id: slack
+        uses: slackapi/slack-github-action@v1.18.0
+        with:
+          channel-id: ${{ secrets.CHANNEL_ID }}
+          slack-message: "Latest deployment status for ${{ github.repository }}: ${{ needs.deploy.result }}"
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
